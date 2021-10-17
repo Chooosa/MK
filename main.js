@@ -60,24 +60,22 @@ function createPlayer({ playerNumber, hp, name, img }) {
   return $player;
 }
 
+function randomInt(min, max) {
+  const random = min + Math.random() * (max + 1 - min);
+  return Math.floor(random);
+}
+
 function changeHp(player) {
   const $playerLife = document.querySelector(`.player${player.playerNumber} .life`);
-  const damage = Math.ceil(Math.random() * 20);
-  const $winTitle = document.querySelector('.winTitle');
+  const damage = randomInt(1, 20);
   
   player.hp = player.hp - damage > 0 ? player.hp - damage : 0;
   $playerLife.style.width = `${player.hp}%`;
   
   if (player.hp === 0) {
-    $attackButton.disabled = true;
-    
-    if ($winTitle) {
-      playerWin();
-      return;
-    }
-    
+    $attackButton.disabled = true;    
     const winnerName = player.playerNumber === 1 ? player2.name : player1.name;
-    $arenas.appendChild(playerWin(winnerName));
+    playerWin(winnerName);
   }
 }
 
@@ -87,11 +85,10 @@ function playerWin(name) {
   if (!$winTitle) {
     $winTitle = createElement('div', 'winTitle');
     $winTitle.innerHTML = `${name} win!`;
-  } else {
-    $winTitle.innerHTML = `Draw!`;
+    $arenas.appendChild($winTitle);
+    return;
   }
-  
-  return $winTitle;
+  $winTitle.innerHTML = `Draw!`;
 }
 
 $attackButton.addEventListener('click', function() {
