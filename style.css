@@ -256,9 +256,11 @@ body {
 .button:hover {
     background-color: #f5d100;
 }
+
 .button:disabled {
     background-color: #525251;
 }
+
 .button:active {
     top: 2px;
 }
@@ -276,4 +278,16 @@ body {
     z-index: 1000;
     color: white;
     font-family: "Mortal Kombat 3";
+}
+
+.reloadWrap {
+    position: absolute;
+    top: 10%;
+    z-index: 1000;
+    left: 50%;
+    transform: translate(-50%, 0%);
+}
+
+.reloadWrap .button {
+    margin-top: 0;
 }
