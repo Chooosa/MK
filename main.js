@@ -72,7 +72,6 @@ function getRandomInt(min, max) {
 
 function changeHp(damage) {
   this.hp = this.hp - damage > 0 ? this.hp - damage : 0;
-  this.renderHp();
 }
 
 function elHP() {
@@ -81,8 +80,7 @@ function elHP() {
 
 function renderHp() {
   const $playerLife = elHP.apply(this);
-  $playerLife.style.width = `${this.hp}%`; //? а тут вопрос, как лучше получать hp? через this или прокидывать через параметры из changeHp
-  // elHP.apply(this).style.width = `${this.hp}%`; //? вопрос, такого рода конструкции считаются хорошей практикой или нет
+  $playerLife.style.width = `${this.hp}%`;
 }
 
 function showResultLabel(name) {
@@ -112,7 +110,10 @@ function createReloadButton() {
 
 $attackButton.addEventListener('click', function() {
   player1.changeHp(getRandomInt(1, 20));
+  player1.renderHp();
+  
   player2.changeHp(getRandomInt(1, 20));
+  player2.renderHp();
   
   if (player1.hp === 0 || player2.hp === 0) {
     $attackButton.disabled = true;
