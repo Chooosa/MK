@@ -1,7 +1,14 @@
 const $arenas = document.querySelector('.arenas');
-const $control = document.querySelector('.control');
-const $attackButton = document.querySelector('.button');
-const $restartButton = document.querySelector('.reloadWrap .button');
+const $formFight = document.querySelector('.control');
+// const $attackButton = document.querySelector('.button');
+
+const HIT = {
+  head: 30,
+  body: 25,
+  foot: 20,
+}
+
+const ATTACK = ['head', 'body', 'foot'];
 
 function Player(player, name, hp, img, weapon) {
   this.playerNumber = player;
@@ -21,14 +28,14 @@ const player1 = new Player(
   1,
   'Subzero', 
   100, 
-  './assets/Subzero.gif',
+  'http://reactmarathon-api.herokuapp.com/assets/subzero.gif',
   ['Kori Blade', 'Ice']
 );
 const player2 = new Player(
   2,
   'Scorpion',
   100,
-  './assets/Scorpion.gif',
+  'http://reactmarathon-api.herokuapp.com/assets/scorpion.gif',
   ['Kunai', 'Blade']
 );
 
@@ -79,7 +86,7 @@ function elHP() {
 }
 
 function renderHp() {
-  const $playerLife = elHP.apply(this);
+  const $playerLife = this.elHP();
   $playerLife.style.width = `${this.hp}%`;
 }
 
@@ -100,24 +107,66 @@ function createReloadButton() {
   const $button = createElement('button', 'button');
   
   $button.innerHTML = 'Restart';
-  $reloadWrap.appendChild($button);
   $button.addEventListener('click', function() {
     window.location.reload();
   })
   
-  return $reloadWrap;
+  $reloadWrap.appendChild($button);
+  $arenas.appendChild($reloadWrap);
 }
 
-$attackButton.addEventListener('click', function() {
-  player1.changeHp(getRandomInt(1, 20));
-  player1.renderHp();
+$arenas.appendChild(createPlayer(player1));
+$arenas.appendChild(createPlayer(player2));
+
+function enemyAtack() {
+  const hit = ATTACK[getRandomInt(0, 2)];
+  const defence = ATTACK[getRandomInt(0, 2)];
   
-  player2.changeHp(getRandomInt(1, 20));
-  player2.renderHp();
+  return {
+    value: getRandomInt(1, HIT[hit]),
+    hit, 
+    defence,
+  }
+}
+
+function userAtack(form) {
+  const atack = {};
+  
+  for (let item of form ) {
+    if (item.checked && item.name === 'hit') {
+      atack.value = getRandomInt(1, HIT[item.value]);
+      atack.hit = item.value;
+    }
+    if (item.checked && item.name === 'defence') {
+      atack.defence = item.value;
+    }
+    
+    item.checked = false;
+  }
+  
+  return atack;
+}
+
+function renderAtackResult(player, damage) {
+  player.changeHp(damage);
+  player.renderHp();
+}
+
+$formFight.addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const enemy = enemyAtack();
+  const user = userAtack($formFight);
+  
+  const enemyDamage = enemy.hit !== user.defence ? enemy.value : 0;
+  const userDamage = user.hit !== enemy.defence ? user.value : 0;
+  
+  renderAtackResult(player1, userDamage);
+  renderAtackResult(player2, enemyDamage);
   
   if (player1.hp === 0 || player2.hp === 0) {
-    $attackButton.disabled = true;
-    $control.appendChild(createReloadButton());
+    $formFight.style.display = 'none';
+    createReloadButton();
   }
   
   if (player1.hp === 0 && player1.hp < player2.hp) {
@@ -128,6 +177,3 @@ $attackButton.addEventListener('click', function() {
     $arenas.appendChild(showResultLabel());
   }
 });
-
-$arenas.appendChild(createPlayer(player1));
-$arenas.appendChild(createPlayer(player2));
