@@ -1,6 +1,8 @@
+import LOGS from './log.js';
+
 const $arenas = document.querySelector('.arenas');
 const $formFight = document.querySelector('.control');
-// const $attackButton = document.querySelector('.button');
+const $chat = document.querySelector('.chat');
 
 const HIT = {
   head: 30,
@@ -26,14 +28,14 @@ function Player(player, name, hp, img, weapon) {
 
 const player1 = new Player(
   1,
-  'Subzero', 
+  'SUBZERO', 
   100, 
   'http://reactmarathon-api.herokuapp.com/assets/subzero.gif',
   ['Kori Blade', 'Ice']
 );
 const player2 = new Player(
   2,
-  'Scorpion',
+  'SCORPION',
   100,
   'http://reactmarathon-api.herokuapp.com/assets/scorpion.gif',
   ['Kunai', 'Blade']
@@ -147,10 +149,83 @@ function userAtack(form) {
   return atack;
 }
 
-function renderAtackResult(player, damage) {
-  player.changeHp(damage);
-  player.renderHp();
+function renderAtackResult(player1, player2, damage) {
+  player1.changeHp(damage);
+  player1.renderHp();
+  
+  generateLogs(damage ? 'hit' : 'defence', player2, player1, damage);
 }
+
+function getTime() {
+  const date = new Date();
+  const minutes = `${date.getMinutes() < 10 ? "0" : ""}${date.getMinutes()}`;
+  const seconds = `${date.getSeconds() < 10 ? "0" : ""}${date.getSeconds()}`;
+  return `${date.getHours()}:${minutes}:${seconds}`;
+  
+}
+
+function generateLogs(type, player1, player2, damage) {
+  const logType = LOGS[type];
+  const name1 = player1.name.toUpperCase()
+  const name2 = player2.name.toUpperCase()
+  let text;
+  let log;
+  const time = getTime();
+  
+  switch (type) {
+    case 'start':
+      text = LOGS[type]
+        .replace('[time]', time)
+        .replace('[player1]', name1)
+        .replace('[player2]', name2);
+      break;
+    case 'hit':
+      log = logType[getRandomInt(0, logType.length-1)]
+        .replace('[playerKick]', name1)
+        .replace('[playerDefence]', name2);
+      text = `[${time}] ${log} [-${damage}][${name2} - ${player2.hp}/100]`;
+      break;
+    case 'defence':
+      log = logType[getRandomInt(0, logType.length-1)]
+        .replace('[playerKick]', name1)
+        .replace('[playerDefence]', name2);
+      text = `[${time}] ${log} [${name2} - ${player2.hp}/100]`;
+      break;
+    case 'end':
+      text = logType[getRandomInt(0, logType.length-1)]
+        .replace('[playerWins]', name1)
+        .replace('[playerLose]', name2);
+      break;
+    case 'draw':
+      text = LOGS[type];
+      break;
+    default:
+      text = 'Что-то даже я не понял, что произошло!';
+  }
+  
+  const el = `<p>${text}</p>`;
+  $chat.insertAdjacentHTML('afterbegin', el);
+}
+
+function showResult() {
+  if (player1.hp === 0 || player2.hp === 0) {
+    $formFight.style.display = 'none';
+    createReloadButton();
+  }
+  
+  if (player1.hp === 0 && player1.hp < player2.hp) {
+    $arenas.appendChild(showResultLabel(player2.name));
+    generateLogs('end', player2, player1);
+  } else if (player2.hp === 0 && player2.hp < player1.hp) {
+    $arenas.appendChild(showResultLabel(player1.name));
+    generateLogs('end', player1, player2);
+  } else if (player1.hp === 0 && player2.hp === 0) {
+    $arenas.appendChild(showResultLabel());
+    generateLogs('draw');
+  }
+}
+
+generateLogs('start', player1, player2);
 
 $formFight.addEventListener('submit', function(e) {
   e.preventDefault();
@@ -161,19 +236,8 @@ $formFight.addEventListener('submit', function(e) {
   const enemyDamage = enemy.hit !== user.defence ? enemy.value : 0;
   const userDamage = user.hit !== enemy.defence ? user.value : 0;
   
-  renderAtackResult(player1, userDamage);
-  renderAtackResult(player2, enemyDamage);
+  renderAtackResult(player2, player1, userDamage);
+  renderAtackResult(player1, player2, enemyDamage);
   
-  if (player1.hp === 0 || player2.hp === 0) {
-    $formFight.style.display = 'none';
-    createReloadButton();
-  }
-  
-  if (player1.hp === 0 && player1.hp < player2.hp) {
-    $arenas.appendChild(showResultLabel(player2.name));
-  } else if (player2.hp === 0 && player2.hp < player1.hp) {
-    $arenas.appendChild(showResultLabel(player1.name));
-  } else if (player1.hp === 0 && player2.hp === 0) {
-    $arenas.appendChild(showResultLabel());
-  }
+  showResult();
 });
