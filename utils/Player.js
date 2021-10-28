@@ -1,60 +1,42 @@
-import { createElement } from './common.js'
-
-function Player(player, name, hp, img, weapon) {
-  this.playerNumber = player;
-  this.name = name;
-  this.hp = hp;
-  this.img = img;
-  this.weapon = weapon;
-  this.attack = function() {
+class Player {
+  constructor(props) {
+    this.playerNumber = props.playerNumber;
+    this.name = props.name;
+    this.hp = props.hp;
+    this.img = props.img;
+    this.weapon = props.weapon;
+  }
+  
+  attack = () => {
     console.log(`${this.name} - Fight...`);
   };
-  this.changeHp = function(damage) {
+  
+  changeHp = (damage) => {
     this.hp = this.hp - damage > 0 ? this.hp - damage : 0;
   };
-  this.elHP = function() {
+  
+  elHP = () => {
     return document.querySelector(`.player${this.playerNumber} .life`);
   };
-  this.renderHp = function() {
+  
+  renderHp = () => {
     const $playerLife = this.elHP();
     $playerLife.style.width = `${this.hp}%`;
   };
 }
 
-export const player1 = new Player(
-  1,
-  'SUBZERO', 
-  100, 
-  'http://reactmarathon-api.herokuapp.com/assets/subzero.gif',
-  ['Kori Blade', 'Ice']
-);
-export const player2 = new Player(
-  2,
-  'SCORPION',
-  100,
-  'http://reactmarathon-api.herokuapp.com/assets/scorpion.gif',
-  ['Kunai', 'Blade']
-);
+export const player1 = new Player({
+  playerNumber: 1,
+  name: 'SUBZERO', 
+  hp: 100, 
+  img: 'http://reactmarathon-api.herokuapp.com/assets/subzero.gif',
+  weapon: ['Kori Blade', 'Ice']
+});
 
-export const createPlayer = ({ playerNumber, hp, name, img }) => {
-  const $player = createElement('div', `player${playerNumber}`);
-  const $progressbar = createElement('div', 'progressbar');
-  const $life = createElement('div', 'life');
-  const $name = createElement('div', 'name');
-  const $character = createElement('div', 'character');
-  const $img = createElement('img');
-  
-  $life.style.width = `${hp}%`;
-  $name.innerHTML = name;
-  $img.src = img;
-  
-  $player.appendChild($progressbar);
-  $player.appendChild($character);
-  
-  $progressbar.appendChild($life);
-  $progressbar.appendChild($name);
-  
-  $character.appendChild($img);
-  
-  return $player;
-}
+export const player2 = new Player({
+  playerNumber: 2,
+  name: 'SCORPION',
+  hp: 100,
+  img: 'http://reactmarathon-api.herokuapp.com/assets/scorpion.gif',
+  weapon: ['Kunai', 'Blade']
+});
