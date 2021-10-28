@@ -7,12 +7,38 @@ import {
   renderAtackResult,
   showResult
 } from './utils/fight.js';
+import { createElement } from './utils/common.js'
 import { player1, player2 } from './utils/Player.js';
 
 export default class Game {
+  createPlayer = (player) => {
+    const { playerNumber, hp, name, img } = player;
+    
+    const $player = createElement('div', `player${playerNumber}`);
+    const $progressbar = createElement('div', 'progressbar');
+    const $life = createElement('div', 'life');
+    const $name = createElement('div', 'name');
+    const $character = createElement('div', 'character');
+    const $img = createElement('img');
+    
+    $life.style.width = `${hp}%`;
+    $name.innerHTML = name;
+    $img.src = img;
+    
+    $player.appendChild($progressbar);
+    $player.appendChild($character);
+    
+    $progressbar.appendChild($life);
+    $progressbar.appendChild($name);
+    
+    $character.appendChild($img);
+    
+    return $player;
+  }
+  
   start = () => {
-    $arenas.appendChild(player1.createPlayer());
-    $arenas.appendChild(player2.createPlayer());
+    $arenas.appendChild(this.createPlayer(player1));
+    $arenas.appendChild(this.createPlayer(player2));
 
     generateLogs('start', player1, player2);
 
