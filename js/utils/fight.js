@@ -1,17 +1,9 @@
-import LOGS from '../assets/log.js';
+import LOGS from '../../assets/log.js';
 import { createElement, getRandomInt, getTime } from './common.js';
-import { player1, player2 } from './Player.js';
 
 export const $arenas = document.querySelector('.arenas');
 export const $formFight = document.querySelector('.control');
 const $chat = document.querySelector('.chat');
-
-const HIT = {
-  head: 30,
-  body: 25,
-  foot: 20,
-}
-const ATTACK = ['head', 'body', 'foot'];
 
 const showResultLabel = (name) => {
   const $winTitle = createElement('div', 'winTitle');
@@ -31,40 +23,42 @@ const createReloadButton = () => {
   
   $button.innerHTML = 'Restart';
   $button.addEventListener('click', () => {
-    window.location.reload();
+    window.location.pathname = 'index.html';
   })
   
   $reloadWrap.appendChild($button);
   $arenas.appendChild($reloadWrap);
 }
 
-export const enemyAtack = () => {
-  const hit = ATTACK[getRandomInt(0, 2)];
-  const defence = ATTACK[getRandomInt(0, 2)];
+const getDamageAsync = async (hit, defence) => {
+  const q = await fetch('http://reactmarathon-api.herokuapp.com/api/mk/player/fight', {
+    method: 'POST',
+    body: JSON.stringify({
+        hit,
+        defence,
+    })
+  }).then(res => res.json());
   
-  return {
-    value: getRandomInt(1, HIT[hit]),
-    hit, 
-    defence,
-  }
+  return q;
 }
 
-export const userAtack = (form) => {
-  const atack = {};
+export const getAtackResult = async (form) => {
+  let hit = '';
+  let defence = '';
   
   for (let item of form ) {
     let { checked, name, value } = item;
     
     if (checked && name === 'hit') {
-      atack.value = getRandomInt(1, HIT[value]);
-      atack.hit = value;
+      hit = value;
     }
     if (checked && name === 'defence') {
-      atack.defence = value;
+      defence = value;
     }
-    
     item.checked = false;
   }
+  
+  const atack = await getDamageAsync(hit, defence);
   
   return atack;
 }
@@ -78,8 +72,8 @@ export const renderAtackResult = (player1, player2, damage) => {
 
 export const generateLogs = (type, player1, player2, damage) => {
   const logType = LOGS[type];
-  const name1 = player1.name.toUpperCase()
-  const name2 = player2.name.toUpperCase()
+  const name1 = player1.name;
+  const name2 = player2.name;
   let text;
   let log;
   const time = getTime();
@@ -119,7 +113,7 @@ export const generateLogs = (type, player1, player2, damage) => {
   $chat.insertAdjacentHTML('afterbegin', el);
 }
 
-export const showResult = () => {
+export const showResult = (player1, player2) => {
   if (player1.hp === 0 || player2.hp === 0) {
     $formFight.style.display = 'none';
     createReloadButton();
@@ -135,4 +129,8 @@ export const showResult = () => {
     $arenas.appendChild(showResultLabel());
     generateLogs('draw');
   }
+}
+
+export const getRandomArena = () => {
+  $arenas.classList.add(`arena${getRandomInt(1, 5)}`);
 }

@@ -1,12 +1,18 @@
 export const createElement = (tag, className) => {
   const $tag = document.createElement(tag);
-  
   if (className) {
-    $tag.classList.add(className);
+      if (Array.isArray(className)) {
+          className.forEach(item => {
+              $tag.classList.add(item);
+          })
+      } else {
+          $tag.classList.add(className);
+      }
+
   }
-  
+
   return $tag;
-};
+}
 
 export const getRandomInt = (min, max) => {
   const random = min + Math.random() * (max + 1 - min);
