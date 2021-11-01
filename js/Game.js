@@ -49,9 +49,6 @@ export default class Game {
       const user = players.player1;
       const enemy = players.player2;
       
-      console.log('enemy:', enemy);
-      console.log('user:', user);
-      
       const enemyDamage = enemy.hit !== user.defence ? enemy.value : 0;
       const userDamage = user.hit !== enemy.defence ? user.value : 0;
       
